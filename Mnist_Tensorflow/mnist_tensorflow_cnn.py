@@ -8,6 +8,9 @@ batch_size=128
 x=tf.placeholder('float',[None,784])
 y=tf.placeholder('float')
 
+keep_rate=0.8
+keep_prob=tf.placeholder(tf.float32)
+
 def conv2d(x,W):
     return tf.nn.conv2d(x,W,strides=[1,1,1,1],padding='SAME')
 
@@ -27,14 +30,15 @@ def model(x):
 
     x=tf.reshape(x,shape=[-1,28,28,1])
 
-    conv1=conv2d(x,weights['W_Conv1'])
+    conv1=tf.nn.relu(conv2d(x,weights['W_Conv1'])+biases['b_Conv1'])
     conv1=maxpool2d(conv1)
 
-    conv2=conv2d(conv1,weights['W_Conv2'])
+    conv2=tf.nn.relu(conv2d(conv1,weights['W_Conv2'])+biases['b_Conv2'])
     conv2=maxpool2d(conv2)
 
     fc=tf.reshape(conv2,[-1,7*7*64])
     fc=tf.nn.relu(tf.matmul(fc,weights['W_fc'])+biases['b_fc'])
+    fc=tf.nn.dropout(fc,keep_rate)
 
     output=tf.matmul(fc,weights['out'])+biases['out']
 
